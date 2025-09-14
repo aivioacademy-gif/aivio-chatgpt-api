@@ -1,0 +1,27 @@
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
+  try {
+    const { input } = req.body;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are AIVIO’s AI assistant." },
+        { role: "user", content: input }
+      ]
+    });
+
+    return res.status(200).json({ output: completion.choices[0].message.content });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
